@@ -4,8 +4,8 @@ import requests
 
 app = FastAPI()
 
-# Your Google Apps Script Web App URL
-GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqq06rNhz_-u2UbRUOgwgCR2DMZj4bfkZDGhROCvIvZIM1jzRQ0KiCM0D6VVMYh3GN/exec"
+# Updated Google Script URL
+GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5T2LUgZTrywKg4xj25j0wnUNAwGdL_5F2liv3kujN_F4pSMOoAC3ojHFXOn-NnuFT/exec"
 
 class Trade(BaseModel):
     symbol: str
@@ -22,12 +22,12 @@ class Trade(BaseModel):
 async def log_trade(trade: Trade):
     trade_data = trade.dict()
 
-    # Send the data to Google Sheets via Apps Script
-    response = requests.post(GOOGLE_SCRIPT_URL, json=trade_data)
-
-    if response.status_code == 200:
-        print("✅ Trade sent to Google Sheet successfully:", trade_data)
+    # Send to Google Sheets via Apps Script
+    try:
+        response = requests.post(GOOGLE_SCRIPT_URL, json=trade_data)
+        response.raise_for_status()
+        print("✅ Trade successfully sent to Google Sheet:", trade_data)
         return {"status": "success", "received": trade_data}
-    else:
-        print("❌ Failed to send trade:", response.text)
-        return {"status": "error", "message": response.text}
+    except Exception as e:
+        print("❌ Error sending to Google Sheet:", e)
+        return {"status": "error", "message": str(e)}
